@@ -1,0 +1,25 @@
+---
+- name: Voorwaardelijke taken demo
+  hosts: 192.168.1.110
+  gather_facts: true
+
+  tasks:
+    - name: Alleen uitvoeren als distributie Ubuntu is
+      ansible.builtin.debug:
+        msg: "Dit is een Ubuntu systeem"
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Alleen uitvoeren als distributie Red Hat is
+      ansible.builtin.debug:
+        msg: "Dit is een Red Hat systeem"
+      when: ansible_facts['distribution'] == "RedHat"
+
+    - name: Controleer of /etc/hosts bestaat
+      ansible.builtin.stat:
+        path: /etc/hosts
+      register: hosts_file
+      failed_when: not hosts_file.stat.exists
+
+    - name: Echo hallo (altijd ok, nooit changed)
+      ansible.builtin.command: echo hallo
+      changed_when: false
