@@ -1,0 +1,46 @@
+---
+- name: Variabelen gebruiken in een playbook
+  hosts: ubuntu            # komt overeen met je [ubuntu]-groep in inventory.ini
+  become: true
+  gather_facts: true
+
+  vars:
+    motd_message: "Welkom Opdr2 Ansible"
+
+  tasks:
+    - name: Zet MOTD met motd_message
+      ansible.builtin.copy:
+        content: "{{ motd_message }}\n"
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Maak /etc/app.conf met app_name uit de inventory
+      ansible.builtin.copy:
+        content: "Application = {{ app_name }}\n"
+        dest: /etc/app.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Voer uname -r uit en registreer als kernel_version
+      ansible.builtin.command: uname -r
+      register: kernel_version
+      changed_when: false
+
+    - name: Schrijf kernel_version.stdout naar /tmp/kernel.txt
+      ansible.builtin.copy:
+        content: "{{ kernel_version.stdout }}\n"
+        dest: /tmp/kernel.txt
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Schrijf ansible_distribution naar /tmp/facts.txt
+      ansible.builtin.copy:
+        content: "{{ ansible_distribution }}\n"
+        dest: /tmp/facts.txt
+        owner: root
+        group: root
+        mode: '0644'
