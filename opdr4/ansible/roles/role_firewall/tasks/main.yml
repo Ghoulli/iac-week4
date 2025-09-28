@@ -1,0 +1,23 @@
+---
+- name: UFW pakket installeren (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'Debian'
+  notify: Reload ufw
+
+- name: Zorg dat UFW enabled is (non-interactive)
+  ansible.builtin.command: ufw --force enable
+  register: role_firewall_ufw_enable
+  changed_when: "'already enabled' not in role_firewall_ufw_enable.stdout"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Sta TCP-poorten toe
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ firewall_allowed_ports }}"
+  when: ansible_facts['os_family'] == 'Debian'
+  notify: Reload ufw

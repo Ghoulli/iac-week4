@@ -1,0 +1,4 @@
+---
+firewall_allowed_ports:
+  - 8080
+  - 22

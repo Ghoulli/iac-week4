@@ -1,0 +1,36 @@
+---
+- name: Site play
+  hosts: 192.168.1.111
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: role_firewall   # installeert UFW en opent poort 8080/tcp
+
+  tasks:
+    # 1) import_tasks = statisch: wordt bij parse/compile in het playbook “ingevouwen”
+    - name: Importeer algemene taken (statisch)
+      ansible.builtin.import_tasks: tasks/common.yml
+
+    # 2) include_tasks = dynamisch: pad en voorwaarden kunnen runtime-variabelen gebruiken
+    - name: OS-specifieke taken (dynamisch includen)
+      ansible.builtin.include_tasks: "tasks/{{ ansible_facts['os_family'] | lower }}.yml"
+      when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+
+  post_tasks:
+    - name: Toon UFW status
+      ansible.builtin.command: ufw status
+      register: ufw_status
+      changed_when: false
+
+    - name: Print UFW rules (ter verificatie)
+      ansible.builtin.debug:
+        var: ufw_status.stdout_lines
+
+    - name: Assert dat 8080/tcp open staat in UFW
+      ansible.builtin.assert:
+        that:
+          - ufw_status.stdout is search('(?m)^8080/tcp\\s+ALLOW')
+        fail_msg: "8080/tcp staat NIET in UFW allow rules"
+        success_msg: "8080/tcp staat open in UFW"

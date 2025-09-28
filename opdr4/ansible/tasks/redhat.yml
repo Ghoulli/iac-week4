@@ -1,0 +1,4 @@
+---
+- name: Alleen uitvoeren op RedHat-family
+  debug:
+    msg: "Dit is een RedHat-family systeem"

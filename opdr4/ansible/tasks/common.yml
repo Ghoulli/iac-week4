@@ -1,0 +1,10 @@
+---
+- name: Controleer of /etc/hosts bestaat (faal als niet aanwezig)
+  ansible.builtin.stat:
+    path: /etc/hosts
+  register: hosts_file
+  failed_when: not hosts_file.stat.exists
+
+- name: Echo hallo (altijd ok, nooit changed)
+  ansible.builtin.command: echo hallo
+  changed_when: false

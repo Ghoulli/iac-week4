@@ -1,0 +1,4 @@
+---
+- name: Alleen uitvoeren op Debian-family (Ubuntu)
+  debug:
+    msg: "Dit is een Debian-family systeem (bijv. Ubuntu)"
